@@ -1,0 +1,12 @@
+[Unit]
+Description=WireGuard nftables config watcher
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/etc/wireguard/wg-nftables-watcher.sh
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
