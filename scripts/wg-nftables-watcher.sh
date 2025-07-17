@@ -2,7 +2,7 @@
 # Watcher script to monitor wg-nftables.conf and sync nftables rules accordingly
 
 CONFIG_FILE="/etc/wireguard/wg-nftables.conf"
-SYNC_SCRIPT="/opt/wireguard/wg-nftables-sync.sh"
+SYNC_SCRIPT="/etc/wireguard/wg-nftables-sync.sh"
 
 LAST_CHECKSUM=""
 
