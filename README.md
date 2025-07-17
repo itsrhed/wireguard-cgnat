@@ -104,6 +104,15 @@ This project provides scripts and a systemd service to manage nftables rules for
 
   Here, `1.2.3.4` is the VPS endpoint IP address.
 
+- The WireGuard private key for the server is stored in `/etc/wireguard/wg0.conf` under the `[Interface]` section as `PrivateKey`.
+
+- The corresponding public key is saved in `/etc/wireguard/publickey` on the server. This public key must be copied and added to the `[Peer]` section of the client’s WireGuard configuration file.
+
+- On the client side, the private key should be generated and stored securely (e.g., in `/etc/wireguard/wg0.conf`), and the public key generated from it must be added to the server’s `[Peer]` section.
+
+- Ensure that the public keys are correctly exchanged and placed in the respective configuration files to establish a secure WireGuard connection.
+  Endpoint = 1.2.3.4:55107
+
 ## Troubleshooting
 
 - If rules are not updating as expected, check the watcher service logs:
