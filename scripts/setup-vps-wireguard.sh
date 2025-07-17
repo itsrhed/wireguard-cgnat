@@ -16,7 +16,7 @@ echo "Installing WireGuard..."
 sudo apt install -y wireguard
 
 echo "Generating WireGuard keys..."
-sudo umask 077
+umask 077
 sudo sh -c "printf '[Interface]\nPrivateKey = ' > /etc/wireguard/wg0.conf"
 sudo wg genkey | sudo tee -a /etc/wireguard/wg0.conf | wg pubkey | sudo tee /etc/wireguard/publickey
 
