@@ -9,38 +9,45 @@ set -e
 INSTALL_DIR="/etc/wireguard"
 SERVICE_NAME="wg-nftables-watcher.service"
 
+# Determine if sudo is needed
+if [ "$(id -u)" -ne 0 ]; then
+    SUDO="sudo"
+else
+    SUDO=""
+fi
+
 echo "Enabling IP forwarding..."
-sudo sed -i 's/^#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
-sudo sysctl -p
+$SUDO sed -i 's/^#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+$SUDO sysctl -p
 
 echo "Installing dependencies..."
 if command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get update
-    sudo apt-get install -y inotify-tools nftables wireguard
+    $SUDO apt-get update
+    $SUDO apt-get install -y inotify-tools nftables wireguard
 elif command -v yum >/dev/null 2>&1; then
-    sudo yum install -y inotify-tools nftables wireguard
+    $SUDO yum install -y inotify-tools nftables wireguard
 else
     echo "Please install inotify-tools, nftables, and wireguard manually."
 fi
 
 echo "Creating install directory: $INSTALL_DIR"
-sudo mkdir -p "$INSTALL_DIR"
+$SUDO mkdir -p "$INSTALL_DIR"
 
 echo "Copying files to $INSTALL_DIR"
-sudo cp wg-nftables.conf wg-nftables-sync.sh wg-nftables-watcher.sh wg-nftables-watcher.service "$INSTALL_DIR/"
+$SUDO cp wg-nftables.conf wg-nftables-sync.sh wg-nftables-watcher.sh wg-nftables-watcher.service "$INSTALL_DIR/"
 
 echo "Setting executable permissions on scripts"
-sudo chmod +x "$INSTALL_DIR/wg-nftables-sync.sh" "$INSTALL_DIR/wg-nftables-watcher.sh"
+$SUDO chmod +x "$INSTALL_DIR/wg-nftables-sync.sh" "$INSTALL_DIR/wg-nftables-watcher.sh"
 
 echo "Generating WireGuard keys and initial config..."
 umask 077
-sudo sh -c "printf '[Interface]\nPrivateKey = ' > $INSTALL_DIR/wg0.conf"
-sudo wg genkey | sudo tee -a $INSTALL_DIR/wg0.conf | wg pubkey | sudo tee $INSTALL_DIR/publickey
+$SUDO sh -c "printf '[Interface]\nPrivateKey = ' > $INSTALL_DIR/wg0.conf"
+$SUDO wg genkey | $SUDO tee -a $INSTALL_DIR/wg0.conf | wg pubkey | $SUDO tee $INSTALL_DIR/publickey
 
 echo "Please copy the public key from $INSTALL_DIR/publickey and add it to your VPS WireGuard config."
 
 echo "Appending WireGuard client config snippet to $INSTALL_DIR/wg0.conf..."
-sudo sh -c "cat >> $INSTALL_DIR/wg0.conf" <<'EOF'
+$SUDO sh -c "cat >> $INSTALL_DIR/wg0.conf" <<'EOF'
 
 Address = 10.0.0.2/24
 
@@ -55,15 +62,15 @@ echo "Note: Replace 'THE_PUBLIC_KEY_FROM_YOUR_VPS_WIREGUARD_INSTALL' with the ac
 echo "Note: Replace '1.2.3.4' with your VPS public IP address."
 
 echo "Reloading systemd daemon"
-sudo systemctl daemon-reload
+$SUDO systemctl daemon-reload
 
 echo "Enabling and starting $SERVICE_NAME"
-sudo systemctl enable "$SERVICE_NAME"
-sudo systemctl start "$SERVICE_NAME"
+$SUDO systemctl enable "$SERVICE_NAME"
+$SUDO systemctl start "$SERVICE_NAME"
 
 echo "Starting WireGuard interface wg0"
-sudo systemctl start wg-quick@wg0
-sudo systemctl enable wg-quick@wg0
+$SUDO systemctl start wg-quick@wg0
+$SUDO systemctl enable wg-quick@wg0
 
 echo "Setup complete. You can check the watcher service status with:"
-echo "  sudo systemctl status $SERVICE_NAME"
+echo "  $SUDO systemctl status $SERVICE_NAME"
