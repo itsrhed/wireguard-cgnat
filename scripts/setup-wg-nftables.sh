@@ -86,3 +86,9 @@ $SUDO systemctl enable wg-quick@wg0
 
 echo "Setup complete. You can check the watcher service status with:"
 echo "  $SUDO systemctl status $SERVICE_NAME"
+
+echo "Running initial nftables sync to load existing configuration..."
+$SUDO /etc/wireguard/wg-nftables-sync.sh
+echo "Initial nftables sync completed."
+
+echo "Test connectivity by pinging $CLIENT_IP from your VPS."

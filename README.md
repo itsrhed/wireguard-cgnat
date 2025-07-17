@@ -1,4 +1,4 @@
-# WireGuard nftables Management
+# WireGuard CGNAT Bypass
 
 This project provides scripts and a systemd service to manage nftables rules for WireGuard dynamically based on a configuration file. It ensures that nftables NAT rules are always synchronized with your desired configuration, preventing duplicates and stale rules.
 
@@ -32,57 +32,45 @@ This project provides scripts and a systemd service to manage nftables rules for
 
 ## Setup and Usage
 
-### On the Local WireGuard Server
+### How to install
 
-1. **Place the files** in a suitable directory on your WireGuard server, e.g., `/etc/wireguard/`.
+1. Download the ZIP of the main branch:
 
-2. **Edit `wg-nftables.conf`** to define your port forwarding rules. Each line should specify the protocol (`tcp` or `udp`), the port number, and the destination IP address.
+```
+wget https://github.com/itsrhed/wireguard-cgnat/archive/refs/heads/main.zip
+```
 
-3. **Make scripts executable**:
+2. Unzip the downloaded archive:
 
-   ```bash
-   chmod +x wg-nftables-sync.sh wg-nftables-watcher.sh
-   ```
+```
+unzip main.zip
+```
 
-4. **Update paths in scripts** if necessary to reflect the actual location of the config and scripts.
+3. Move into the folder:
 
-5. **Test the sync script manually** to apply rules initially:
+```
+cd wireguard-cgnat-main/scripts/
+```
 
-   ```bash
-   ./wg-nftables-sync.sh
-   ```
+4. Make all `.sh` scripts executable (optional but safe):
 
-6. **Enable and start the systemd watcher service** to keep rules in sync automatically:
+```
+chmod +x *.sh
+```
 
-   ```bash
-   sudo systemctl enable wg-nftables-watcher.service
-   sudo systemctl start wg-nftables-watcher.service
-   ```
+5. Run your scripts:
 
-7. **Verify the service status**:
+- On VPS:
 
-   ```bash
-   sudo systemctl status wg-nftables-watcher.service
-   ```
+```
+./setup-vps-wireguard.sh
+```
 
-8. **Modify `wg-nftables.conf`** as needed. The watcher service will detect changes and update nftables rules accordingly.
+- On local Client:
 
-### On the VPS
-
-1. **Run the VPS setup script** to install WireGuard, enable IP forwarding, and generate keys:
-
-   ```bash
-   sudo sh setup-vps-wireguard.sh
-   ```
-
-2. **Edit `/etc/wireguard/wg0.conf`** on the VPS as instructed by the script, replacing placeholders with your actual VPS IP, interface, and client public key.
-
-3. **Start and enable WireGuard on the VPS**:
-
-   ```bash
-   sudo systemctl start wg-quick@wg0
-   sudo systemctl enable wg-quick@wg0
-   ```
+```
+./setup-wg-nftables.sh
+```
 
 ## Notes
 
@@ -111,13 +99,12 @@ This project provides scripts and a systemd service to manage nftables rules for
 - On the client side, the private key should be generated and stored securely (e.g., in `/etc/wireguard/wg0.conf`), and the public key generated from it must be added to the server’s `[Peer]` section.
 
 - Ensure that the public keys are correctly exchanged and placed in the respective configuration files to establish a secure WireGuard connection.
-  Endpoint = 1.2.3.4:55107
 
 ## Troubleshooting
 
 - If rules are not updating as expected, check the watcher service logs:
 
-  ```bash
+  ```
   journalctl -u wg-nftables-watcher.service -f
   ```
 

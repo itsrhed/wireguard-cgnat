@@ -77,4 +77,4 @@ echo "Starting WireGuard interface wg0..."
 sudo systemctl start wg-quick@wg0
 sudo systemctl enable wg-quick@wg0
 
-echo "Setup complete. Test connectivity by pinging 10.0.0.2 from your VPS."
+echo "Setup complete. Test connectivity by pinging $SERVER_IP from your VPS."
