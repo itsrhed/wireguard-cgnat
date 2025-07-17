@@ -31,21 +31,33 @@ if [ -z "$VPS_IP" ]; then
 fi
 echo "Detected VPS public IP: $VPS_IP"
 
+echo "Please enter the WireGuard server IP address (default: 10.0.0.1):"
+read -r SERVER_IP
+if [ -z "$SERVER_IP" ]; then
+    SERVER_IP="10.0.0.1"
+fi
+
+echo "Please enter the WireGuard client IP address (default: 10.0.0.2):"
+read -r CLIENT_IP
+if [ -z "$CLIENT_IP" ]; then
+    CLIENT_IP="10.0.0.2"
+fi
+
 # Append configuration to wg0.conf
 cat <<EOF | sudo tee -a /etc/wireguard/wg0.conf
 
 ListenPort = 55107
-Address = 10.0.0.1/24
+Address = $SERVER_IP/24
 
-PostUp = iptables -t nat -A PREROUTING -p tcp -i eth0 '!' --dport 22 -j DNAT --to-destination 10.0.0.2; iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source $VPS_IP
-PostUp = iptables -t nat -A PREROUTING -p udp -i eth0 '!' --dport 55107 -j DNAT --to-destination 10.0.0.2;
+PostUp = iptables -t nat -A PREROUTING -p tcp -i eth0 '!' --dport 22 -j DNAT --to-destination $CLIENT_IP; iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source $VPS_IP
+PostUp = iptables -t nat -A PREROUTING -p udp -i eth0 '!' --dport 55107 -j DNAT --to-destination $CLIENT_IP;
 
-PostDown = iptables -t nat -D PREROUTING -p tcp -i eth0 '!' --dport 22 -j DNAT --to-destination 10.0.0.2; iptables -t nat -D POSTROUTING -o eth0 -j SNAT --to-source $VPS_IP
-PostDown = iptables -t nat -D PREROUTING -p udp -i eth0 '!' --dport 55107 -j DNAT --to-destination 10.0.0.2;
+PostDown = iptables -t nat -D PREROUTING -p tcp -i eth0 '!' --dport 22 -j DNAT --to-destination $CLIENT_IP; iptables -t nat -D POSTROUTING -o eth0 -j SNAT --to-source $VPS_IP
+PostDown = iptables -t nat -D PREROUTING -p udp -i eth0 '!' --dport 55107 -j DNAT --to-destination $CLIENT_IP;
 
 [Peer]
 PublicKey = (client public key here)
-AllowedIPs = 10.0.0.2/32
+AllowedIPs = $CLIENT_IP/32
 EOF
 
 echo "Please edit /etc/wireguard/wg0.conf to replace '(client public key here)' with your client's public key."

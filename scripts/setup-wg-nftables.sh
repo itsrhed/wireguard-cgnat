@@ -47,6 +47,12 @@ read -r VPS_PUBLIC_KEY
 echo "Please enter the VPS public IP address (Endpoint):"
 read -r VPS_IP
 
+echo "Please enter the WireGuard client IP address (default: 10.0.0.2):"
+read -r CLIENT_IP
+if [ -z "$CLIENT_IP" ]; then
+    CLIENT_IP="10.0.0.2"
+fi
+
 echo "Generating WireGuard keys and initial config..."
 umask 077
 $SUDO sh -c "printf '[Interface]\nPrivateKey = ' > $INSTALL_DIR/wg0.conf"
@@ -55,7 +61,7 @@ $SUDO wg genkey | $SUDO tee -a $INSTALL_DIR/wg0.conf | wg pubkey | $SUDO tee $IN
 echo "Appending WireGuard client config snippet to $INSTALL_DIR/wg0.conf..."
 $SUDO sh -c "cat >> $INSTALL_DIR/wg0.conf" <<EOF
 
-Address = 10.0.0.2/24
+Address = $CLIENT_IP/24
 
 [Peer]
 PublicKey = $VPS_PUBLIC_KEY
