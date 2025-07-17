@@ -7,6 +7,7 @@
 set -e
 
 INSTALL_DIR="/etc/wireguard"
+SERVICE_DIR="/etc/systemd/system/"
 SERVICE_NAME="wg-nftables-watcher.service"
 
 # Determine if sudo is needed
@@ -34,27 +35,32 @@ echo "Creating install directory: $INSTALL_DIR"
 $SUDO mkdir -p "$INSTALL_DIR"
 
 echo "Copying files to $INSTALL_DIR"
+$SUDO cp wg-nftables-watcher.service "$SERVICE_DIR/"
 $SUDO cp wg-nftables.conf wg-nftables-sync.sh wg-nftables-watcher.sh wg-nftables-watcher.service "$INSTALL_DIR/"
 
 echo "Setting executable permissions on scripts"
 $SUDO chmod +x "$INSTALL_DIR/wg-nftables-sync.sh" "$INSTALL_DIR/wg-nftables-watcher.sh"
+
+echo "Please enter the public key from your VPS WireGuard setup:"
+read -r VPS_PUBLIC_KEY
+
+echo "Please enter the VPS public IP address (Endpoint):"
+read -r VPS_IP
 
 echo "Generating WireGuard keys and initial config..."
 umask 077
 $SUDO sh -c "printf '[Interface]\nPrivateKey = ' > $INSTALL_DIR/wg0.conf"
 $SUDO wg genkey | $SUDO tee -a $INSTALL_DIR/wg0.conf | wg pubkey | $SUDO tee $INSTALL_DIR/publickey
 
-echo "Please copy the public key from $INSTALL_DIR/publickey and add it to your VPS WireGuard config."
-
 echo "Appending WireGuard client config snippet to $INSTALL_DIR/wg0.conf..."
-$SUDO sh -c "cat >> $INSTALL_DIR/wg0.conf" <<'EOF'
+$SUDO sh -c "cat >> $INSTALL_DIR/wg0.conf" <<EOF
 
 Address = 10.0.0.2/24
 
 [Peer]
-PublicKey = THE_PUBLIC_KEY_FROM_YOUR_VPS_WIREGUARD_INSTALL
+PublicKey = $VPS_PUBLIC_KEY
 AllowedIPs = 0.0.0.0/0
-Endpoint = 1.2.3.4:55107
+Endpoint = $VPS_IP:55107
 PersistentKeepalive = 25
 EOF
 
