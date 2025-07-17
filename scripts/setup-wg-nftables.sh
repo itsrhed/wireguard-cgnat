@@ -33,7 +33,7 @@ echo "Setting executable permissions on scripts"
 sudo chmod +x "$INSTALL_DIR/wg-nftables-sync.sh" "$INSTALL_DIR/wg-nftables-watcher.sh"
 
 echo "Generating WireGuard keys and initial config..."
-sudo umask 077
+umask 077
 sudo sh -c "printf '[Interface]\nPrivateKey = ' > $INSTALL_DIR/wg0.conf"
 sudo wg genkey | sudo tee -a $INSTALL_DIR/wg0.conf | wg pubkey | sudo tee $INSTALL_DIR/publickey
 
