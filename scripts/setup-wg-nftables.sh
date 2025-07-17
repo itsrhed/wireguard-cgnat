@@ -39,10 +39,9 @@ sudo wg genkey | sudo tee -a $INSTALL_DIR/wg0.conf | wg pubkey | sudo tee $INSTA
 
 echo "Please copy the public key from $INSTALL_DIR/publickey and add it to your VPS WireGuard config."
 
-echo "You may need to edit $INSTALL_DIR/wg0.conf to add the following (adjust as needed):"
-echo "
-[Interface]
-PrivateKey = (already filled)
+echo "Appending WireGuard client config snippet to $INSTALL_DIR/wg0.conf..."
+sudo sh -c "cat >> $INSTALL_DIR/wg0.conf" <<'EOF'
+
 Address = 10.0.0.2/24
 
 [Peer]
@@ -50,7 +49,10 @@ PublicKey = THE_PUBLIC_KEY_FROM_YOUR_VPS_WIREGUARD_INSTALL
 AllowedIPs = 0.0.0.0/0
 Endpoint = 1.2.3.4:55107
 PersistentKeepalive = 25
-"
+EOF
+
+echo "Note: Replace 'THE_PUBLIC_KEY_FROM_YOUR_VPS_WIREGUARD_INSTALL' with the actual public key from your VPS WireGuard setup."
+echo "Note: Replace '1.2.3.4' with your VPS public IP address."
 
 echo "Reloading systemd daemon"
 sudo systemctl daemon-reload
