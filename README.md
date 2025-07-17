@@ -102,7 +102,7 @@ chmod +x *.sh
 
 ## Troubleshooting
 
-- If rules are not updating as expected, check the watcher service logs:
+- If rules are not updating as expected, check the watcher service logs of your Local Client:
 
   ```
   journalctl -u wg-nftables-watcher.service -f
