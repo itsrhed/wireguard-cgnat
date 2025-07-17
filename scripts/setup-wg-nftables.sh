@@ -24,11 +24,11 @@ $SUDO sysctl -p
 echo "Installing dependencies..."
 if command -v apt-get >/dev/null 2>&1; then
     $SUDO apt-get update
-    $SUDO apt-get install -y inotify-tools nftables wireguard
+    $SUDO apt-get install -y inotify-tools nftables wireguard dos2unix
 elif command -v yum >/dev/null 2>&1; then
-    $SUDO yum install -y inotify-tools nftables wireguard
+    $SUDO yum install -y inotify-tools nftables wireguard dos2unix
 else
-    echo "Please install inotify-tools, nftables, and wireguard manually."
+    echo "Please install inotify-tools, nftables, wireguard, and dos2unix manually."
 fi
 
 echo "Creating install directory: $INSTALL_DIR"
@@ -36,7 +36,7 @@ $SUDO mkdir -p "$INSTALL_DIR"
 
 echo "Copying files to $INSTALL_DIR"
 $SUDO cp wg-nftables-watcher.service "$SERVICE_DIR/"
-$SUDO cp wg-nftables.conf wg-nftables-sync.sh wg-nftables-watcher.sh wg-nftables-watcher.service "$INSTALL_DIR/"
+$SUDO cp wg-nftables.conf wg-nftables-sync.sh wg-nftables-watcher.sh "$INSTALL_DIR/"
 
 echo "Setting executable permissions on scripts"
 $SUDO chmod +x "$INSTALL_DIR/wg-nftables-sync.sh" "$INSTALL_DIR/wg-nftables-watcher.sh"

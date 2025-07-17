@@ -18,8 +18,9 @@ while read -r proto port dest; do
     case "$proto" in
         \#*|"") continue ;;
     esac
-    echo "$proto dport $port dnat to $dest:$port" >> "$CONFIG_PREROUTING"
-    echo "$proto dport $port masquerade" >> "$CONFIG_POSTROUTING"
+    # Correct nftables syntax for dnat and masquerade rules
+    echo "meta l4proto $proto tcp dport $port dnat to $dest:$port" >> "$CONFIG_PREROUTING"
+    echo "meta l4proto $proto tcp dport $port masquerade" >> "$CONFIG_POSTROUTING"
 done < "$CONFIG_FILE"
 
 # Delete outdated prerouting rules

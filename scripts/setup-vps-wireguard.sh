@@ -63,6 +63,16 @@ EOF
 echo "Please edit /etc/wireguard/wg0.conf to replace '(client public key here)' with your client's public key."
 echo "Replace 'eth0' with your internet-facing interface if different."
 
+echo "Setup the local WireGuard client first to generate its public key."
+echo "Once you have the client's public key, come back and enter it below."
+
+echo "Enter the client's public key:"
+read -r CLIENT_PUBLIC_KEY
+
+sudo sed -i "s/(client public key here)/$CLIENT_PUBLIC_KEY/" /etc/wireguard/wg0.conf
+
+echo "Client public key updated in /etc/wireguard/wg0.conf."
+
 echo "Starting WireGuard interface wg0..."
 sudo systemctl start wg-quick@wg0
 sudo systemctl enable wg-quick@wg0

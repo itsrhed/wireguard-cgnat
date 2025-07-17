@@ -4,7 +4,8 @@
 CONFIG_FILE="/etc/wireguard/wg-nftables.conf"
 SYNC_SCRIPT="/etc/wireguard/wg-nftables-sync.sh"
 
-LAST_CHECKSUM=""
+# Compute initial checksum
+LAST_CHECKSUM=$(sha256sum "$CONFIG_FILE" | awk '{print $1}')
 
 while inotifywait -e close_write "$CONFIG_FILE"; do
     CURRENT_CHECKSUM=$(sha256sum "$CONFIG_FILE" | awk '{print $1}')
@@ -13,6 +14,6 @@ while inotifywait -e close_write "$CONFIG_FILE"; do
         sh "$SYNC_SCRIPT"
         LAST_CHECKSUM=$CURRENT_CHECKSUM
     else
-        echo "No changes detected in $CONFIG_FILE content."
+        echo "No actual content change in $CONFIG_FILE."
     fi
 done
